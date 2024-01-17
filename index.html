@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic Sneakers Store</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #161616;
+            color: #fff;
+            overflow-x: hidden;
+            margin-top: 60px;
+        }
+
+        .top-section {
+            background-image: url('store/shoes.webp');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            color: #fff;
+            padding: 16.4em;
+            text-align: left;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease;
+            opacity: 1;
+        }
+
+        .top-section h1 {
+            font-size: 4.5em;
+            line-height: 1.5;
+            text-shadow: 10px 10px 10px #000;
+        }
+
+        .top-section.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        section {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 100px 20px 20px;
+        }
+
+        .product {
+            background-color: #282828;
+            border: 1px solid #333;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .product img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .product:hover {
+            transform: scale(1.05);
+        }
+
+        .product:hover img {
+            transform: translateY(-10%);
+        }
+
+        .product-details {
+            padding: 20px;
+            text-align: center;
+        }
+
+        .product h2 {
+            margin: 0;
+            font-size: 1.5em;
+            color: #fff;
+        }
+
+        .product p {
+            margin: 10px 0;
+            font-size: 1.2em;
+            color: #aaa;
+        }
+
+        .product button {
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s ease;
+        }
+
+        .product button:hover {
+            background-color: #45a049;
+        }
+
+        /* Improved styles for the cart */
+        .cart-icon {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 2000;
+            background-color: #4caf50;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background-image: url('store/cart.jpg'); /* Replace with a professional cart icon image */
+            background-size: cover;
+            text-indent: -9999px; /* Hide the emoji */
+        }
+
+        .cart-section {
+            position: fixed;
+            right: 20px;
+            top: 70px;
+            width: 300px;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 8px;
+            display: none;
+            z-index: 2000;
+            box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+            transition: 0.3s;
+            padding: 15px;
+            font-size: 1rem;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #555;
+            padding-bottom: 5px;
+            align-items: center;
+            padding: 10px;
+            font-size: 0.9rem;
+        }
+
+        .remove-item {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+            font-size: 0.9rem;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="top-section" id="topSection">
+        <h1>Futuristic Sneakers Store</h1>
+    </div>
+
+    <div class="cart-icon" onclick="toggleCart()">🛒</div>
+    <div class="cart-section" id="cartSection"></div>
+
+    <section id="productSection"></section>
+
+    <script>
+        // Define functions that need to be globally accessible
+
+        function addToCart(modelName, price) {
+            if (cart[modelName]) {
+                cart[modelName].quantity += 1;
+            } else {
+                cart[modelName] = { price, quantity: 1 };
+            }
+            displayCartItems();
+            // Automatically open the cart if it's closed
+            if (document.getElementById('cartSection').style.display === 'none') {
+                toggleCart();
+            }
+        }
+
+        function removeFromCart(modelName) {
+            if (cart[modelName].quantity > 1) {
+                cart[modelName].quantity -= 1;
+            } else {
+                delete cart[modelName];
+            }
+            displayCartItems();
+            // Close cart if empty
+            if (Object.keys(cart).length === 0) {
+                const cartSection = document.getElementById('cartSection');
+                cartSection.style.display = 'none';
+            }
+        }
+
+        function toggleCart() {
+            const cartSection = document.getElementById('cartSection');
+            if (cart.length === 0) {
+                cartSection.style.display = 'none'; // Keep cart closed if empty
+            } else {
+                cartSection.style.display = cartSection.style.display === 'none' ? 'block' : 'none';
+            }
+        }
+
+
+        function displayCartItems() {
+            const cartSection = document.getElementById('cartSection');
+            cartSection.innerHTML = '';
+            Object.entries(cart).forEach(([modelName, item]) => {
+                cartSection.innerHTML += `
+                    <div class="cart-item">
+                        <span>${modelName} - $${item.price} x ${item.quantity}</span>
+                        <span class="remove-item" onclick="removeFromCart('${modelName}')">X</span>
+                    </div>
+                `;
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const sneakerModelsAndPrices = {
+                "Air Max 1": 200,
+                "Ultraboost": 220,
+                "React Element 87": 180,
+                "Yeezy Boost 350 V2": 300,
+                "Air Jordan 1": 250,
+                "Nike SB Dunk Low": 150,
+                "Adidas NMD R1": 170,
+                "Converse Chuck Taylor All Star": 60,
+                "Puma RS-X": 120,
+                "New Balance 990": 180,
+                "Vans Old Skool": 65,
+                "Reebok Classic Leather": 75,
+                "ASICS Gel-Lyte III": 120,
+                "Fila Disruptor": 70,
+                "Balenciaga Triple S": 750,
+                "Under Armour HOVR Phantom": 140,
+                "Saucony Jazz Original": 80,
+                "Puma Clyde": 80,
+                "ASICS Gel-Kayano": 160,
+                "New Balance 574": 80,
+                "Adidas Superstar": 80,
+                "Nike Blazer Mid": 100,
+                "Jordan 1 Low": 110,
+                "Yeezy Boost 700": 300,
+                "Converse Chuck 70": 85,
+                "Vans Sk8-Hi": 75,
+                "Reebok Club C": 80,
+                "Fila Ray": 75,
+                "Balenciaga Speed Trainer": 595,
+                "Under Armour Curry 7": 140,
+                "Saucony Shadow 6000": 120,
+            };
+
+            window.cart = {};
+
+            const cartSection = document.getElementById('cartSection');
+            cartSection.style.display = 'none';
+
+            function generateProducts() {
+                const productSection = document.getElementById('productSection');
+                productSection.innerHTML = '';
+
+                Object.entries(sneakerModelsAndPrices).forEach(([modelName, price], index) => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'product';
+                    productDiv.innerHTML = `
+                        <img src="store/sneaker${index + 1}.jpg" alt="${modelName}">
+                        <div class="product-details">
+                            <h2>${modelName}</h2>
+                            <p>$${price}</p>
+                            <button id="addToCartBtn${index}">Add to Cart</button>
+                        </div>
+                    `;
+
+                    productSection.appendChild(productDiv);
+                });
+
+                // Adding click listeners for 'Add to Cart' buttons
+                Object.keys(sneakerModelsAndPrices).forEach((modelName, index) => {
+                    const addToCartBtn = document.getElementById(`addToCartBtn${index}`);
+                    const price = sneakerModelsAndPrices[modelName];
+                    addToCartBtn.addEventListener('click', () => addToCart(modelName, price));
+                });
+            }
+
+            window.addEventListener('scroll', function () {
+                var topSection = document.getElementById('topSection');
+                topSection.style.transition = 'opacity 1.0s ease-in-out, display 1.0s ease-in-out';
+                const shouldHide = window.scrollY > 0;
+                topSection.style.opacity = shouldHide ? '0' : '1';
+                topSection.style.display = shouldHide ? 'none' : 'block';
+            });
+
+            generateProducts();
+        });
+    </script>
+</body>
+
+</html>
